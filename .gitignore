@@ -1,0 +1,6 @@
+~*
+*.autosave
+*_temp.*
+*_test.*
+temp*
+test*
