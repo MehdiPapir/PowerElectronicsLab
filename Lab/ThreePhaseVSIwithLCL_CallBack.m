@@ -53,6 +53,7 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
                 vLabel.Visible = 'off';
                 cLabel.Visible = 'off';
                 voltage_sink.type = 'port';
+                current_sink.type = 'port';
 				try
 					voltage_sink.handler = add_block(voltage_sink.source, voltage_sink.path, ...
 					'Position', voltage_sink.position);
@@ -66,6 +67,7 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
                 cLabel.Visible = 'on';
                 vLabel.Visible = 'on';
                 voltage_sink.type = 'label';
+                current_sink.type = 'label';
 				try
 					delete_line(gcb, 'T1/1', voltage_sink.port);
 					delete_line(gcb, 'T1/2', current_sink.port);
@@ -77,6 +79,7 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
                 cLabel.Visible = 'off';
                 vLabel.Visible = 'off';
                 voltage_sink.type = 'none';
+                current_sink.type = 'none';
 				try
 					delete_line(gcb, 'T1/1', voltage_sink.port);
 					delete_line(gcb, 'T1/2', current_sink.port);
@@ -87,8 +90,8 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 		end % end of if old_m_pop != m_pop
 		
 	case 'MeasurementLabel'
-		hvTag = getSimulinkBlockHandle(strjoin({gcb, 'vTage'}, '/'));
-		hiTag = getSimulinkBlockHandle(strjoin({gcb, 'iTage'}, '/'));
+		hvTag = getSimulinkBlockHandle(strjoin({gcb, 'vTag'}, '/'));
+		hiTag = getSimulinkBlockHandle(strjoin({gcb, 'iTag'}, '/'));
 		
 		% Set voltage tag to new label
 		if strcmp(voltage_sink.type, 'label')
