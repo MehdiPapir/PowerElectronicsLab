@@ -4,10 +4,10 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 % Syntax: ThreePhaseVSIwithLCL_CallBack(scope)
 %
 % Long description
-	persistent old_dc_pop old_loop_pop old_m_pop old_v_label old_c_label
-	persistent voltage_sink current_sink
-	if isempty(old_dc_pop)
-		old_dc_pop = 'Internal';
+	persistent old_selector old_loop_pop old_m_pop old_v_label old_c_label
+	persistent voltage_sink current_sink pos_dc_port neg_dc_port
+	if isempty(old_selector)
+		old_selector = 'Internal';
 	end
 	if isempty(old_loop_pop)
 		old_loop_pop = 'Current';
@@ -38,7 +38,25 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 		current_sink.position = [710, 183, 740, 197];
 		current_sink.linkPoints = [644, 260; 644, 190; 705, 190];
 	end
-
+	if isempty(pos_dc_port)
+		pos_dc_port.name = '+';
+		pos_dc_port.path = strjoin({gcb, pos_dc_port.name}, '/');
+		pos_dc_port.port = 'WarZone/Inverter/+/1';
+		pos_dc_port.source = 'powerlib/Elements/Connection Port';
+		pos_dc_port.handler = -1;
+		pos_dc_port.position = [65, 213, 95, 227];
+		pos_dc_port.linkPoints = [99, 220; 140, 220];
+		pos_dc_port.linkHandler = -1;
+		
+		neg_dc_port.name = '-';
+		neg_dc_port.path = strjoin({gcb, neg_dc_port.name}, '/');
+		% neg_dc_port.path = 'WarZone/Inverter/-';
+		neg_dc_port.source = 'powerlib/Elements/Connection Port';
+		neg_dc_port.handler = -1;
+		neg_dc_port.position = [65, 273, 95, 287];
+		neg_dc_port.linkPoints = [99, 280; 140, 280];
+		neg_dc_port.linkHandler = -1;
+	end
 	switch scope
 	case 'MeasurementPopup'
 		mask = Simulink.Mask.get(gcbh);
@@ -128,7 +146,28 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 		end
 		
 	case 'DCLinkSelector'
-
+		selector = get_param(gcb, 'dc_pop');
+		hDCS = getSimulinkBlockHandle(strjoin({gcb, 'DC Source'}, '/'));
+		if ~strcmp(old_selector, selector)
+			old_selector = selector;
+			if strcmp(selector, 'Internal')
+				try delete_line(gcb, pos_dc_port.linkPoints); end
+				try delete_line(gcb, neg_dc_port.linkPoints); end
+				try delete_block(pos_dc_port.path);			  end
+				try delete_block(neg_dc_port.path);			  end
+				set(hDCS, 'Commented', 'off');
+			else
+				try pos_dc_port.handler = add_block(pos_dc_port.source, ...
+					pos_dc_port.path, 'Position', pos_dc_port.position);
+				end
+				try neg_dc_port.handler = add_block(neg_dc_port.source, ...
+					neg_dc_port.path, 'Position', neg_dc_port.position);
+				end
+				try pos_dc_port.linkHandler = add_line(gcb, pos_dc_port.linkPoints); end
+				try neg_dc_port.linkHandler = add_line(gcb, neg_dc_port.linkPoints); end
+				set(hDCS, 'Commented', 'on');
+			end
+		end
 
 	case 'LCLFilterDesigner'
 
