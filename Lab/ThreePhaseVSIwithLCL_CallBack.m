@@ -57,6 +57,9 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 		neg_dc_port.linkPoints = [99, 280; 140, 280];
 		neg_dc_port.linkHandler = -1;
 	end
+
+	mask = Simulink.Mask.get(gcbh);
+
 	switch scope
 	case 'MeasurementPopup'
 		mask = Simulink.Mask.get(gcbh);
@@ -170,9 +173,50 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 		end
 
 	case 'LCLFilterDesigner'
+		sn = inline(get_param(gcb, 'Sn') , 'x'); sn = sn(1);
+		vn = inline(get_param(gcb, 'Vn') , 'x'); vn = vn(1);
+		vd = inline(get_param(gcb, 'Vdc'), 'x'); vd = vd(1);
+		fs = inline(get_param(gcb, 'fsw'), 'x'); fs = fs(1);
+		ff = inline(get_param(gcb, 'f')  , 'x'); ff = ff(1);
+		r  = inline(get_param(gcb, 'r')  , 'x');  r =  r(1);
+		ckb = mask.getParameter('advance_designer_ckb');
+		if strcmp(get_param(gcb, 'advance_designer_ckb'), 'on')
+			dvm = inline(get_param(gcb, 'dVmax'), 'x'); dvm = dvm(1);
+			dim = inline(get_param(gcb, 'dImax'), 'x'); dim = dim(1);
+		else
+			dvm = 0.05;
+			dim = 0.1;
+		end
+		Zb = (vn^2)/sn;
+		wg = 2*pi*ff;
+		I_max = sn * sqrt(2) / (3 * vn / sqrt(3));
+		dI_max = dim * I_max;
+		L1 = vd / (6*fs*dI_max);
+		L2 = r*L1;
+		Cb = 1 / (wg * Zb);
+		Cf = Cb * dvm;
+		wres = sqrt((L1+L2)/(L1*L2*Cf));
+		fres = wres/(2*pi);
+		Rf = 1 / (3 * wres * Cf);
+		set_param(gcb, 'L1', num2str(L1))
+		set_param(gcb, 'L2', num2str(L2))
+		set_param(gcb, 'Cf', num2str(Cf))
+		set_param(gcb, 'Rf', num2str(Rf))
+		set_param(gcb, 'fres', num2str(fres))
 
+	case 'FilterCheckBox'
+		dvm = mask.getParameter('dVmax');
+		dim = mask.getParameter('dImax');
+		if strcmp(get_param(gcb, 'advance_designer_ckb'), 'on')
+			dvm.Visible = 'on';
+			dim.Visible = 'on';
+		else
+			dvm.Visible = 'off';
+			dim.Visible = 'off';
+		end
 
 	case 'LCLFilterCalculator'
+
 
 
 	case 'PRColterollerDesigner'

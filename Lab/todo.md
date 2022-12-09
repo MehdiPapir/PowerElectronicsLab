@@ -6,7 +6,7 @@ Following list represent development code status:
  - [x] DC Link Selector
  - [x] Controller Loop Selector
  - [x] Measurement Output Type Selector
- - [ ] Advance Designer Checkbox
- - [ ] Filter Designer Button
+ - [x] Advance Designer Checkbox
+ - [x] Filter Designer Button
  - [ ] Filter Calculator Button
  - [ ] Controller Designer Button
