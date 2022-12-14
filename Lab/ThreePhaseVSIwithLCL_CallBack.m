@@ -4,7 +4,12 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 % Syntax: ThreePhaseVSIwithLCL_CallBack(scope)
 %
 % Long description
-	persistent old_selector old_loop_pop old_m_pop old_v_label old_c_label
+ 
+%#ok<*TRYNC>
+%#ok<*ALIGN>
+%#ok<*DINLN>
+
+	persistent old_selector old_loop_pop old_m_pop
 	persistent voltage_sink current_sink pos_dc_port neg_dc_port
 	if isempty(old_selector)
 		old_selector = 'Internal';
@@ -14,11 +19,7 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 	end
 	if isempty(old_m_pop)
 		old_m_pop = 'Yes, with Port';
-	end
-	if isempty(old_c_label)
-		old_v_label = 'Vout';
-		old_c_label = 'Iout';
-	end
+    end
 	if isempty(voltage_sink)
 		voltage_sink.name = 'Vout';
 		voltage_sink.port = strjoin({voltage_sink.name, '1'}, '/');
@@ -179,7 +180,6 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 		fs = inline(get_param(gcb, 'fsw'), 'x'); fs = fs(1);
 		ff = inline(get_param(gcb, 'f')  , 'x'); ff = ff(1);
 		r  = inline(get_param(gcb, 'r')  , 'x');  r =  r(1);
-		ckb = mask.getParameter('advance_designer_ckb');
 		if strcmp(get_param(gcb, 'advance_designer_ckb'), 'on')
 			dvm = inline(get_param(gcb, 'dVmax'), 'x'); dvm = dvm(1);
 			dim = inline(get_param(gcb, 'dImax'), 'x'); dim = dim(1);
@@ -216,8 +216,30 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 		end
 
 	case 'LCLFilterCalculator'
-
-
+		Sn = inline(get_param(gcb, 'Sn') , 'x'); sn = Sn(1);
+		Vn = inline(get_param(gcb, 'Vn') , 'x'); vn = Vn(1);
+		Vd = inline(get_param(gcb, 'Vdc'), 'x'); vd = Vd(1);
+		Fs = inline(get_param(gcb, 'fsw'), 'x'); fs = Fs(1);
+		Ff = inline(get_param(gcb, 'f')  , 'x'); ff = Ff(1);	
+		Li = inline(get_param(gcb, 'L1') , 'x'); L1 = Li(1);
+		Lg = inline(get_param(gcb, 'L2') , 'x'); L2 = Lg(1);
+		CF = inline(get_param(gcb, 'Cf') , 'x'); Cf = CF(1);
+		wg = 2*pi*ff;
+		I_max = sn * sqrt(2) / (3 * vn / sqrt(3));
+		dI_max = vd / (6*fs*L1);
+		dim = dI_max / I_max;
+		Zb = (vn^2)/sn;
+		dvm = Cf * wg * Zb;
+		wres = sqrt((L1+L2)/(L1*L2*Cf));
+		fres = wres/(2*pi);
+		Rf = 1 / (3 * wres * Cf);
+		% disp([Rf fres;dvm dim])
+		set_param(gcb, 'Rf'   , num2str(Rf)  )
+		set_param(gcb, 'fres' , num2str(fres))
+		if strcmp(get_param(gcb, 'advance_designer_ckb'), 'on')
+			set_param(gcb, 'dVmax', num2str(dvm) )
+			set_param(gcb, 'dImax', num2str(dim) )
+		end
 
 	case 'PRColterollerDesigner'
 
