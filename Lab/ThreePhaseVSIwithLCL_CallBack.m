@@ -192,12 +192,17 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 		I_max = sn * sqrt(2) / (3 * vn / sqrt(3));
 		dI_max = dim * I_max;
 		L1 = vd / (6*fs*dI_max);
-		L2 = r*L1;
 		Cb = 1 / (wg * Zb);
 		Cf = Cb * dvm;
+		des_pop = get_param(gcb, 'des_pop');
+		if strcmp(des_pop, 'known r')
+			L2 = r*L1;
+		else
+			L2 = (abs(1/r) + 1) / (Cf * (2*pi*fs)^2);
+		end
 		wres = sqrt((L1+L2)/(L1*L2*Cf));
 		fres = wres/(2*pi);
-		Rf = 1 / (3 * wres * Cf);
+		Rf = 1 / (wres * Cf);
 		set_param(gcb, 'L1', num2str(L1))
 		set_param(gcb, 'L2', num2str(L2))
 		set_param(gcb, 'Cf', num2str(Cf))
@@ -232,7 +237,7 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 		dvm = Cf * wg * Zb;
 		wres = sqrt((L1+L2)/(L1*L2*Cf));
 		fres = wres/(2*pi);
-		Rf = 1 / (3 * wres * Cf);
+		Rf = 1 / (wres * Cf);
 		% disp([Rf fres;dvm dim])
 		set_param(gcb, 'Rf'   , num2str(Rf)  )
 		set_param(gcb, 'fres' , num2str(fres))
@@ -243,6 +248,15 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 
 	case 'PRColterollerDesigner'
 
+
+	case 'DesignerSelector'
+		edit = mask.getParameter('r');
+		des_pop = get_param(gcb, 'des_pop');
+		if strcmp(des_pop, 'known r')
+			edit.Prompt = 'L2/L1 Ratio (r)';
+		else
+			edit.Prompt = 'ka Ratio';
+		end
 
 	case default
 
