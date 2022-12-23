@@ -155,8 +155,8 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 		if ~strcmp(old_selector, selector)
 			old_selector = selector;
 			if strcmp(selector, 'Internal')
-				try delete_line(gcb, pos_dc_port.linkPoints); end
-				try delete_line(gcb, neg_dc_port.linkPoints); end
+				%try delete_line(gcb, pos_dc_port.linkPoints); end
+				%try delete_line(gcb, neg_dc_port.linkPoints); end
 				try delete_block(pos_dc_port.path);			  end
 				try delete_block(neg_dc_port.path);			  end
 				set(hDCS, 'Commented', 'off');
@@ -167,8 +167,8 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 				try neg_dc_port.handler = add_block(neg_dc_port.source, ...
 					neg_dc_port.path, 'Position', neg_dc_port.position);
 				end
-				try pos_dc_port.linkHandler = add_line(gcb, pos_dc_port.linkPoints); end
-				try neg_dc_port.linkHandler = add_line(gcb, neg_dc_port.linkPoints); end
+				%try pos_dc_port.linkHandler = add_line(gcb, pos_dc_port.linkPoints); end
+				%try neg_dc_port.linkHandler = add_line(gcb, neg_dc_port.linkPoints); end
 				set(hDCS, 'Commented', 'on');
 			end
 		end
