@@ -179,7 +179,6 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 		vd = inline(get_param(gcb, 'Vdc'), 'x'); vd = vd(1);
 		fs = inline(get_param(gcb, 'fsw'), 'x'); fs = fs(1);
 		ff = inline(get_param(gcb, 'f')  , 'x'); ff = ff(1);
-		r  = inline(get_param(gcb, 'r')  , 'x');  r =  r(1);
 		if strcmp(get_param(gcb, 'advance_designer_ckb'), 'on')
 			dvm = inline(get_param(gcb, 'dVmax'), 'x'); dvm = dvm(1);
 			dim = inline(get_param(gcb, 'dImax'), 'x'); dim = dim(1);
@@ -196,9 +195,11 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 		Cf = Cb * dvm;
 		des_pop = get_param(gcb, 'des_pop');
 		if strcmp(des_pop, 'known r')
+			r  = inline(get_param(gcb, 'r')  , 'x');  r =  r(1);
 			L2 = r*L1;
 		else
-			L2 = (abs(1/r) + 1) / (Cf * (2*pi*fs)^2);
+			ka = inline(get_param(gcb, 'ka') , 'x'); ka = ka(1);
+			L2 = (abs(1/ka) + 1) / (Cf * (2*pi*fs)^2);
 		end
 		wres = sqrt((L1+L2)/(L1*L2*Cf));
 		fres = wres/(2*pi);
@@ -250,12 +251,15 @@ function ThreePhaseVSIwithLCL_CallBack(scope)
 
 
 	case 'DesignerSelector'
-		edit = mask.getParameter('r');
+		edit_r  = mask.getParameter('r');
+		edit_ka = mask.getParameter('ka');
 		des_pop = get_param(gcb, 'des_pop');
 		if strcmp(des_pop, 'known r')
-			edit.Prompt = 'L2/L1 Ratio (r)';
+			edit_ka.Visible = 'off';
+			edit_r.Visible  = 'on';
 		else
-			edit.Prompt = 'ka Ratio';
+			edit_r.Visible  = 'off';
+			edit_ka.Visible = 'on';
 		end
 
 	case default
