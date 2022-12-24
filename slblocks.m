@@ -6,7 +6,7 @@ function blkStruct = slblocks
 		Browser.Library = 'power_electronics';
 		% 'mylib' is the name of the library
 
-		Browser.Name = 'Power Electronics';
+		Browser.Name = 'Power Electronic Lab';
 		% 'My Library' is the library name that appears 
              % in the Library Browser
 
