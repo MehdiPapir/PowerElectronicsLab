@@ -16,7 +16,7 @@ function VCO_Callback()
     end
     old_sel = sel;
     switch sel
-    case 'Arc Only'
+    case 'Arc'
         if (getSimulinkBlockHandle(theta_path) == -1)
           add_block(source, theta_path, 'Position', ...
           [60 -7 90 7], 'Port', '1', 'ShowName', 'off')
@@ -26,7 +26,7 @@ function VCO_Callback()
           delete_line(gcb, 'omega/1', 'Integrator/1')
           delete_block(omega_path)
         end
-    case 'Freq. Only'
+    case 'Freq'
         if (getSimulinkBlockHandle(omega_path) == -1)
           add_block(source, omega_path, 'Position', ...
           [60 38 90 52], 'Port', '1', 'ShowName', 'off');
@@ -36,7 +36,7 @@ function VCO_Callback()
           delete_line(gcb, 'theta/1', 'Sum3/1');
           delete_block(theta_path);
         end
-    case 'Freq. and Arc'
+    case 'Arc & Freq'
         if (getSimulinkBlockHandle(theta_path) == -1)
           add_block(source, theta_path, 'Position', ...
           [60 -7 90 7], 'Port', '1', 'ShowName', 'off')
